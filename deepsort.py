@@ -4,6 +4,8 @@ from .deep_sort.application_util import preprocessing as prep
 from .deep_sort.application_util import visualization
 from .deep_sort.deep_sort.detection import Detection
 
+from .siamese_net import SiameseNetwork
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -37,7 +39,8 @@ class deepsort_rbc():
 		#loading this encoder is slow, should be done only once.
 		#self.encoder = generate_detections.create_box_encoder("deep_sort/resources/networks/mars-small128.ckpt-68577")		
 		if wt_path is not None:
-			self.encoder = torch.load(wt_path)			
+			self.encoder = SiameseNetwork()
+			self.encoder.load_state_dict(torch.load(wt_path))
 		else:
 			self.encoder = torch.load('ckpts/model640.pt')
 			
