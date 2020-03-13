@@ -3,6 +3,7 @@ from .deep_sort.deep_sort.tracker import Tracker
 from .deep_sort.application_util import preprocessing as prep
 from .deep_sort.application_util import visualization
 from .deep_sort.deep_sort.detection import Detection
+from .deep_sort.tools import generate_detections
 
 from .siamese_net import SiameseNetwork
 
@@ -36,16 +37,19 @@ def get_gaussian_mask():
 
 class deepsort_rbc():
 	def __init__(self,wt_path=None):
+		# This option loads TensorFlow weights for network trained on MARS Dataset (real pedestrians)
 		#loading this encoder is slow, should be done only once.
-		#self.encoder = generate_detections.create_box_encoder("deep_sort/resources/networks/mars-small128.ckpt-68577")		
-		if wt_path is not None:
-			self.encoder = SiameseNetwork()
-			self.encoder.load_state_dict(torch.load(wt_path))
-		else:
-			self.encoder = torch.load('ckpts/model640.pt')
+		self.encoder = generate_detections.create_box_encoder("/home/erdos/workspace/forks/pylot/dependencies/tracking/deep-sort/mars-small128.pb")
+
+		# This option loads PyTorch weights for siamese networks (model640.pt is trained on real vehicles)
+		#if wt_path is not None:
+		#	self.encoder = SiameseNetwork()
+		#	self.encoder.load_state_dict(torch.load(wt_path))
+		#else:
+		#	self.encoder = torch.load('ckpts/model640.pt')
 			
-		self.encoder = self.encoder.cuda()
-		self.encoder = self.encoder.eval()
+		#self.encoder = self.encoder.cuda()
+		#self.encoder = self.encoder.eval()
 		print("Deep sort model loaded")
 
 		self.metric = nn_matching.NearestNeighborDistanceMetric("cosine",.5 , 100)
@@ -170,13 +174,13 @@ class deepsort_rbc():
 			return trackers
 
 		detections = np.array(out_boxes)
-		#features = self.encoder(frame, detections.copy())
+		features = self.encoder(frame, detections.copy())
 
-		processed_crops = self.pre_process(frame,detections).cuda()
-		processed_crops = self.gaussian_mask * processed_crops
+		#processed_crops = self.pre_process(frame,detections).cuda()
+		#processed_crops = self.gaussian_mask * processed_crops
 
-		features = self.encoder.forward_once(processed_crops)
-		features = features.detach().cpu().numpy()
+		#features = self.encoder.forward_once(processed_crops)
+		#features = features.detach().cpu().numpy()
 
 		if len(features.shape)==1:
 			features = np.expand_dims(features,0)
