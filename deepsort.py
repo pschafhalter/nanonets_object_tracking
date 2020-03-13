@@ -39,7 +39,7 @@ class deepsort_rbc():
 	def __init__(self,wt_path=None):
 		# This option loads TensorFlow weights for network trained on MARS Dataset (real pedestrians)
 		#loading this encoder is slow, should be done only once.
-		self.encoder = generate_detections.create_box_encoder("/home/erdos/workspace/forks/pylot/dependencies/tracking/deep-sort/mars-small128.pb")
+		self.encoder = generate_detections.create_box_encoder(wt_path)
 
 		# This option loads PyTorch weights for siamese networks (model640.pt is trained on real vehicles)
 		#if wt_path is not None:
