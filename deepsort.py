@@ -14,6 +14,11 @@ import torch
 import torchvision
 from scipy.stats import multivariate_normal
 
+MAX_IOU_DISTANCE = 1.0
+MAX_AGE = 5
+NUM_DETS_FOR_CONFIRMED_TRACK = 3
+
+
 def get_gaussian_mask():
 	#128 is image size
 	x, y = np.mgrid[0:1.0:128j, 0:1.0:128j]
@@ -49,7 +54,7 @@ class deepsort_rbc():
 		print("Deep sort model loaded")
 
 		self.metric = nn_matching.NearestNeighborDistanceMetric("cosine",.5 , 100)
-		self.tracker= Tracker(self.metric)
+		self.tracker= Tracker(self.metric, max_iou_distance=MAX_IOU_DISTANCE, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
 
 		self.gaussian_mask = get_gaussian_mask().cuda()
 
@@ -62,7 +67,7 @@ class deepsort_rbc():
 
 
 	def reset_tracker(self):
-		self.tracker= Tracker(self.metric)
+		self.tracker= Tracker(self.metric, max_iou_distance=MAX_IOU_DISTANCE, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
 
 	#Deep sort needs the format `top_left_x, top_left_y, width,height
 	
@@ -161,13 +166,11 @@ class deepsort_rbc():
 		return features,corrected_crop
 
 
-	def run_deep_sort(self, frame, out_scores, out_boxes):
+	def run_deep_sort(self, frame, out_scores, out_boxes, labels):
 
 		if out_boxes==[]:			
 			self.tracker.predict()
-			print('No detections')
-			trackers = self.tracker.tracks
-			return trackers
+			return self.tracker, []
 
 		detections = np.array(out_boxes)
 		#features = self.encoder(frame, detections.copy())
@@ -182,9 +185,9 @@ class deepsort_rbc():
 			features = np.expand_dims(features,0)
 
 
-		dets = [Detection(bbox, score, feature) \
-					for bbox,score, feature in\
-				zip(detections,out_scores, features)]
+		dets = [Detection(bbox, score, feature, label) \
+					for bbox, score, feature, label in\
+				zip(detections, out_scores, features, labels)]
 
 		outboxes = np.array([d.tlwh for d in dets])
 
@@ -196,7 +199,7 @@ class deepsort_rbc():
 		self.tracker.predict()
 		self.tracker.update(dets)	
 
-		return self.tracker,dets
+		return self.tracker, dets
 
 
 
