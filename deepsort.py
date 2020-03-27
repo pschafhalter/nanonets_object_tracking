@@ -165,9 +165,7 @@ class deepsort_rbc():
 
 		if out_boxes==[]:			
 			self.tracker.predict()
-			print('No detections')
-			trackers = self.tracker.tracks
-			return trackers
+			return self.tracker, []
 
 		detections = np.array(out_boxes)
 		#features = self.encoder(frame, detections.copy())
@@ -196,7 +194,7 @@ class deepsort_rbc():
 		self.tracker.predict()
 		self.tracker.update(dets)	
 
-		return self.tracker,dets
+		return self.tracker, dets
 
 
 
