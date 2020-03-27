@@ -14,6 +14,11 @@ import torch
 import torchvision
 from scipy.stats import multivariate_normal
 
+MAX_IOU_DISTANCE = 1.0
+MAX_AGE = 5
+NUM_DETS_FOR_CONFIRMED_TRACK = 3
+
+
 def get_gaussian_mask():
 	#128 is image size
 	x, y = np.mgrid[0:1.0:128j, 0:1.0:128j]
@@ -49,7 +54,7 @@ class deepsort_rbc():
 		print("Deep sort model loaded")
 
 		self.metric = nn_matching.NearestNeighborDistanceMetric("cosine",.5 , 100)
-		self.tracker= Tracker(self.metric)
+		self.tracker= Tracker(self.metric, max_iou_distance=MAX_IOU_DISTANCE, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
 
 		self.gaussian_mask = get_gaussian_mask().cuda()
 
@@ -62,7 +67,7 @@ class deepsort_rbc():
 
 
 	def reset_tracker(self):
-		self.tracker= Tracker(self.metric)
+		self.tracker= Tracker(self.metric, max_iou_distance=MAX_IOU_DISTANCE, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
 
 	#Deep sort needs the format `top_left_x, top_left_y, width,height
 	
