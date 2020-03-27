@@ -161,7 +161,7 @@ class deepsort_rbc():
 		return features,corrected_crop
 
 
-	def run_deep_sort(self, frame, out_scores, out_boxes):
+	def run_deep_sort(self, frame, out_scores, out_boxes, labels):
 
 		if out_boxes==[]:			
 			self.tracker.predict()
@@ -182,9 +182,9 @@ class deepsort_rbc():
 			features = np.expand_dims(features,0)
 
 
-		dets = [Detection(bbox, score, feature) \
-					for bbox,score, feature in\
-				zip(detections,out_scores, features)]
+		dets = [Detection(bbox, score, feature, label) \
+					for bbox, score, feature, label in\
+				zip(detections, out_scores, features, labels)]
 
 		outboxes = np.array([d.tlwh for d in dets])
 
