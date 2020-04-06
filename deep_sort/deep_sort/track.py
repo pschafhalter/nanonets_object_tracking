@@ -148,6 +148,8 @@ class Track:
         self.hits += 1
         self.time_since_update = 0
         self.label = detection.label
+        if detection.object_id != -1:
+            self.track_id = detection.object_id
         if self.state == TrackState.Tentative and self.hits >= self._n_init:
             self.state = TrackState.Confirmed
 

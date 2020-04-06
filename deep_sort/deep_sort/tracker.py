@@ -144,9 +144,13 @@ class Tracker:
 
     def _initiate_track(self, detection):
         mean, covariance = self.kf.initiate(detection.to_xyah())
+        if detection.object_id != -1:
+            track_id = detection.object_id
+        else:
+            track_id = self._next_id
+            self._next_id += 1
         self.tracks.append(Track(
-            mean, covariance, self._next_id, self.n_init, self.max_age,
+            mean, covariance, track_id, self.n_init, self.max_age,
             detection.feature, detection.label))
         #print(detection.feature)
         #print(detection.feature.shape)
-        self._next_id += 1

@@ -15,7 +15,9 @@ class Detection(object):
     feature : array_like
         A feature vector that describes the object contained in this image.
     label : str
-        A label indicating the class of the detection
+        A label indicating the class of the detection.
+    object_id : int
+        A (unique) id for the detected object.
 
     Attributes
     ----------
@@ -26,15 +28,18 @@ class Detection(object):
     feature : ndarray | NoneType
         A feature vector that describes the object contained in this image.
     label : str
-        A label indicating the class of the detection
+        A label indicating the class of the detection.
+    object_id : int
+        A (unique) id for the detected object.
 
     """
 
-    def __init__(self, tlwh, confidence, feature, label="unknown"):
+    def __init__(self, tlwh, confidence, feature, label="unknown", object_id=-1):
         self.tlwh = np.asarray(tlwh, dtype=np.float)
         self.confidence = float(confidence)
         self.feature = np.asarray(feature, dtype=np.float32)
         self.label = label
+        self.object_id = object_id
 
     def to_tlbr(self):
         """Convert bounding box to format `(min x, min y, max x, max y)`, i.e.,
