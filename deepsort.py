@@ -14,7 +14,6 @@ import torch
 import torchvision
 from scipy.stats import multivariate_normal
 
-MAX_IOU_DISTANCE = 1.0
 MAX_AGE = 5
 NUM_DETS_FOR_CONFIRMED_TRACK = 3
 
@@ -40,7 +39,7 @@ def get_gaussian_mask():
 
 
 class deepsort_rbc():
-	def __init__(self,wt_path=None):
+	def __init__(self, wt_path=None, min_iou=0.3):
 		#loading this encoder is slow, should be done only once.
 		#self.encoder = generate_detections.create_box_encoder("deep_sort/resources/networks/mars-small128.ckpt-68577")		
 		if wt_path is not None:
@@ -53,8 +52,9 @@ class deepsort_rbc():
 		self.encoder = self.encoder.eval()
 		print("Deep sort model loaded")
 
+		self.max_iou_distance = 1.0 - min_iou
 		self.metric = nn_matching.NearestNeighborDistanceMetric("cosine",.5 , 100)
-		self.tracker= Tracker(self.metric, max_iou_distance=MAX_IOU_DISTANCE, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
+		self.tracker= Tracker(self.metric, max_iou_distance=self.max_iou_distance, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
 
 		self.gaussian_mask = get_gaussian_mask().cuda()
 
@@ -67,7 +67,7 @@ class deepsort_rbc():
 
 
 	def reset_tracker(self):
-		self.tracker= Tracker(self.metric, max_iou_distance=MAX_IOU_DISTANCE, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
+		self.tracker= Tracker(self.metric, max_iou_distance=self.max_iou_distance, max_age=MAX_AGE, n_init=NUM_DETS_FOR_CONFIRMED_TRACK)
 
 	#Deep sort needs the format `top_left_x, top_left_y, width,height
 	
