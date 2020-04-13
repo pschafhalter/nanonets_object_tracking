@@ -15,7 +15,7 @@ import torchvision
 from scipy.stats import multivariate_normal
 
 MAX_AGE = 5
-NUM_DETS_FOR_CONFIRMED_TRACK = 3
+NUM_DETS_FOR_CONFIRMED_TRACK = 1
 
 
 def get_gaussian_mask():
