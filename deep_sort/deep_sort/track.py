@@ -67,9 +67,14 @@ class Track:
         A string representing the class label of the tracked object.
 
     """
-
-    def __init__(self, mean, covariance, track_id, n_init, max_age,
-                 feature=None, label="unknown"):
+    def __init__(self,
+                 mean,
+                 covariance,
+                 track_id,
+                 n_init,
+                 max_age,
+                 feature=None,
+                 label="unknown"):
         self.mean = mean
         self.covariance = covariance
         self.track_id = track_id
@@ -141,15 +146,16 @@ class Track:
             The associated detection.
 
         """
-        self.mean, self.covariance = kf.update(
-            self.mean, self.covariance, detection.to_xyah())
+        self.mean, self.covariance = kf.update(self.mean, self.covariance,
+                                               detection.to_xyah())
         self.features.append(detection.feature)
 
         self.hits += 1
         self.time_since_update = 0
         self.label = detection.label
-        if detection.object_id != -1:
-            self.track_id = detection.object_id
+        # No need to update the track id to the new obstacle id.
+        # if detection.object_id != -1:
+        #     self.track_id = detection.object_id
         if self.state == TrackState.Tentative and self.hits >= self._n_init:
             self.state = TrackState.Confirmed
 
